@@ -9,7 +9,7 @@ Versions are not necessarily required to match.
 
 We'll be using a postgres database called `curriculum_dev` that is configured in the `config/database.yml` file.
 
-Run `create_db curriculum_dev` from your cli or `CREATE DATABASE curriculum_dev;` in the psql interpreter to create the database
+Run `createdb curriculum_dev` from your cli or `CREATE DATABASE curriculum_dev;` in the psql interpreter to create the database
 
 Use `bundle` to install dependencies.
 
@@ -29,7 +29,7 @@ The `version_users` table allows students to be assigned versions of curriculum 
 
 The `lessons` table holds lessons for a given subject. Lessons have a `version_id`, and many lessons exist for a given version of a subject.
 
-The `questions` table has a `lesson_id` and holds questions for individual lessons. The students submit answers to questions. In order to keep track of questions which are the same across versions, questions have a `uid` attribute which identifies the question as the same across different versions of lessons. This means that when a student submits an answer to a question on version 1 with a uid of `xyz`, that answer still counts for the question on version 2 that _also_ has a uid of `xyz`.
+The `questions` table has a `lesson_id` and holds questions for individual lessons. The students submit answers to questions. In order to keep track of questions which are the same across versions, questions have a `uid` attribute which identifies the question as the same across different versions of lessons. This means that when a student submits an answer to a question on version 1 with a uid of `xyz`, that answer still counts for the same question on version 2 that _also_ has a uid of `xyz`.
 
 The `answers` table has a `user_id` and `question_id` along an answer a student has submitted to a question.
 
