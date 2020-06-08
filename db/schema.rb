@@ -57,6 +57,8 @@ ActiveRecord::Schema.define(version: 2020_06_08_035802) do
 
   create_table "versions", force: :cascade do |t|
     t.bigint "subject_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["subject_id"], name: "index_versions_on_subject_id"
   end
 
