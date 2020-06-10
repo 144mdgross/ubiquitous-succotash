@@ -10,7 +10,13 @@ class LessonsController < ApplicationController
     end
 
     @questions = Question.where(lesson_id: @lesson[:id])
-    @question_ids = @questions.pluck(:id)
+    @uids = Array.new
+    # now get the uid instead
+    @questions.each do |q|
+      @uids.push(q[:uid])
+    end
+
+    @question_ids = Question.where(:uid => @uids).pluck(:id)
     @answers = Answer.where(:question_id =>@question_ids).where(:user_id => @version_user[0][:user_id]).order('id DESC')
 
     if @answers.empty?
