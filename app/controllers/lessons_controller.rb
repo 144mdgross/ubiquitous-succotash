@@ -10,6 +10,7 @@ class LessonsController < ApplicationController
       return
     end
 
+    @user_id = @version_user[0][:user_id]
     @questions = Question.where(lesson_id: @lesson[:id])
 
     # now get the uids of each question to properly track answers.
@@ -19,15 +20,21 @@ class LessonsController < ApplicationController
     end
 
     @all_questions = Question.where(:uid => @uids)
-    @answers = Answer.where(:question_id => @all_questions.pluck(:id)).where(:user_id => @version_user[0][:user_id]).order('id ASC')
+    @answers = Answer.where(:question_id => @all_questions.pluck(:id)).where(:user_id => @user_id).order('id ASC')
 
     @final_answers = {}
 
-    # loop over each potential question there could be an answer for and collect most recent answers.
+    # loop over each potential question there could be an answer for and collect most recent answer.
     @all_questions.each do |q|
+      # initialize questions to have a nil response. Will be overwritten if a student has answered.
+      if @final_answers[q[:uid]].nil?
+        @final_answers[q[:uid]] = {answer: nil, question_id: q[:id], user_id: @user_id}
+        puts @final_answers[q[:uid]]
+      end
+
       @answers.each do |a|
         if  a[:question_id].equal? q[:id]
-          # NOTE. Answers are sorted by ID, so the most recent id will overwrite this key making the most recent answer display.
+          # NOTE. Answers are sorted by ID, so the most recent answer will be the one to display
           @final_answers[q[:uid]] = a
         end
       end
