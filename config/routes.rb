@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  resource :lesson do
-    get "index"
-  end
+  # TODO: limit the options avaialbe to lessons route for existing actions.
+  resources :lessons
 end
