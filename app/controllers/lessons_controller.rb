@@ -3,7 +3,7 @@ class LessonsController < ApplicationController
 
   def show
     @lesson = Lesson.find(allow_params[:id])
-    @version_user = VersionUser.where(user_id: allow_params[:user])
+    @version_user = VersionUser.where(user_id: allow_params[:student])
 
     # ensure the user has been assigned to the lesson
     if !@version_user.any? {|h| h[:version] == @lesson[:version]}
@@ -55,6 +55,6 @@ class LessonsController < ApplicationController
   private
 
     def allow_params
-      params.permit(:user, :id)
+      params.permit(:student, :id)
     end
 end
