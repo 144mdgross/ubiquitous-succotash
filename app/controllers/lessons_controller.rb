@@ -1,4 +1,5 @@
 class LessonsController < ApplicationController
+  @@not_found = { error: 'Not Found', status: '404' }
 
   def show
     @lesson = Lesson.find(allow_params[:id])
@@ -6,8 +7,8 @@ class LessonsController < ApplicationController
 
     # ensure the user has been assigned to the lesson
     if !@version_user.any? {|h| h[:version] == @lesson[:version]}
-      render json: { error: "Not Found", status: '404' }
-      return
+      render json: { error: 'Not Found', status: '404' }
+      return @@not_found
     end
 
     @user_id = @version_user[0][:user_id]
@@ -47,7 +48,7 @@ class LessonsController < ApplicationController
     }
 
   rescue ActiveRecord::RecordNotFound
-    render json: {error: "Not Found", status: '404'}
+    render json: @@not_found
   end
 
 
