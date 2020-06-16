@@ -14,10 +14,11 @@ class LessonsController < ApplicationController
     @questions = Question.select('id, lesson_id, question, uid').where(lesson: @lesson)
     @uids = @questions.pluck(:uid)
 
-    @answers = Answer.select('answers.id, answers.answer, questions.uid').
+    @answers = Answer.select('distinct on (questions.uid) questions.uid, answers.id, answers.answer, answers.user_id').
         joins(:question).
-        where('questions.uid' => @uids, user_id: @user_id).
-        order('answers.id DESC')
+        where('questions.uid' => @uids, 'answers.user_id' => @user_id).
+        group('questions.uid, answers.id').
+        order('questions.uid, answers.id DESC')
 
     @final_answers = {}
     # initialize questions to have a nil response. Will be overwritten if a student has answered.
