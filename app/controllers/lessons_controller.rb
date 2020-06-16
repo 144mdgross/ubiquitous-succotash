@@ -3,47 +3,36 @@ class LessonsController < ApplicationController
 
   def show
     @lesson = Lesson.find(allow_params[:id])
-    @version_user = VersionUser.where(user_id: allow_params[:student])
+    @version_user = VersionUser.where(user_id: allow_params[:student], version_id: @lesson.version_id)
 
     # ensure the user has been assigned to the lesson
-    if !@version_user.any? {|h| h[:version] == @lesson[:version]}
-      render json: { error: 'Not Found', status: '404' }
-      return @@not_found
+    if @version_user.empty?
+      render json:@@not_found and return
     end
 
-    @user_id = @version_user[0][:user_id]
-    @questions = Question.where(lesson_id: @lesson[:id])
+    @user_id = @version_user.first.user_id
+    @questions = Question.select('id, lesson_id, question, uid').where(lesson: @lesson)
+    @uids = @questions.pluck(:uid)
 
-    # now get the uids of each question to properly track answers.
-    @uids = []
-    @questions.each do |q|
-      @uids.push(q[:uid])
-    end
-
-    @all_questions = Question.where(:uid => @uids)
-    @answers = Answer.where(:question_id => @all_questions.pluck(:id)).where(:user_id => @user_id).order('id ASC')
+    @answers = Answer.select('answers.id, answers.answer, questions.uid').
+        joins(:question).
+        where('questions.uid' => @uids, user_id: @user_id).
+        order('answers.id DESC')
 
     @final_answers = {}
+    # initialize questions to have a nil response. Will be overwritten if a student has answered.
+    @uids.each { |uid| @final_answers[uid] = nil}
 
     # loop over each potential question there could be an answer for and collect most recent answer.
-    @all_questions.each do |q|
-      # initialize questions to have a nil response. Will be overwritten if a student has answered.
-      if @final_answers[q[:uid]].nil?
-        @final_answers[q[:uid]] = {answer: nil, question_id: q[:id], user_id: @user_id}
-        puts @final_answers[q[:uid]]
-      end
-
-      @answers.each do |a|
-        if  a[:question_id].equal? q[:id]
-          # NOTE. Answers are sorted by ID, so the most recent answer will be the one to display
-          @final_answers[q[:uid]] = a
-        end
+    @answers.each do |a|
+      if @final_answers[a[:uid]].nil?
+        @final_answers[a[:uid]] = a
       end
     end
 
     render json: {
         lesson: @lesson[:content],
-        questions: @questions.to_json(:except => [:correct_answer]),
+        questions: @questions,
         answers: @final_answers,
     }
 
