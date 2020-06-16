@@ -20,21 +20,10 @@ class LessonsController < ApplicationController
         group('questions.uid, answers.id').
         order('questions.uid, answers.id DESC')
 
-    @final_answers = {}
-    # initialize questions to have a nil response. Will be overwritten if a student has answered.
-    @uids.each { |uid| @final_answers[uid] = nil}
-
-    # loop over each potential question there could be an answer for and collect most recent answer.
-    @answers.each do |a|
-      if @final_answers[a[:uid]].nil?
-        @final_answers[a[:uid]] = a
-      end
-    end
-
     render json: {
         lesson: @lesson[:content],
         questions: @questions,
-        answers: @final_answers,
+        answers: @answers,
     }
 
   rescue ActiveRecord::RecordNotFound
